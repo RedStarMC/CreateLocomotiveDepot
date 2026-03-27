@@ -1,0 +1,13 @@
+{
+  "itemGroup.createlocomotivedepot": "Example Mod Tab",
+  "block.createlocomotivedepot.example_block": "Example Block",
+  "item.createlocomotivedepot.example_item": "Example Item",
+
+  "createlocomotivedepot.configuration.title": "Create Locomotive Depot Configs",
+  "createlocomotivedepot.configuration.section.createlocomotivedepot.common.toml": "Create Locomotive Depot Configs",
+  "createlocomotivedepot.configuration.section.createlocomotivedepot.common.toml.title": "Create Locomotive Depot Configs",
+  "createlocomotivedepot.configuration.items": "Item List",
+  "createlocomotivedepot.configuration.logDirtBlock": "Log Dirt Block",
+  "createlocomotivedepot.configuration.magicNumberIntroduction": "Magic Number Text",
+  "createlocomotivedepot.configuration.magicNumber": "Magic Number"
+}
