@@ -1,47 +1,65 @@
 package top.redstarmc.mod.createlocomotivedepot;
 
-import org.slf4j.Logger;
-
 import com.mojang.logging.LogUtils;
-
+import com.simibubi.create.content.trains.graph.EdgePointType;
+import com.simibubi.create.foundation.data.CreateRegistrate;
+import com.simibubi.create.foundation.item.ItemDescription;
+import com.simibubi.create.foundation.item.KineticStats;
+import com.simibubi.create.foundation.item.TooltipModifier;
+import net.createmod.catnip.lang.FontHelper;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import org.slf4j.Logger;
+import top.redstarmc.mod.createlocomotivedepot.content.trains.signal.four.FourSignalBoundary;
+import top.redstarmc.mod.createlocomotivedepot.registry.CLDBlockEntities;
+import top.redstarmc.mod.createlocomotivedepot.registry.CLDBlocks;
+import top.redstarmc.mod.createlocomotivedepot.registry.CLDCreativeModeTabs;
+import top.redstarmc.mod.createlocomotivedepot.registry.CLDItems;
 
-// The value here should match an entry in the META-INF/neoforge.mods.toml file
 @Mod(CreateLocomotiveDepot.MOD_ID)
 public class CreateLocomotiveDepot {
-    // Define mod id in a common place for everything to reference
+
     public static final String MOD_ID = "createlocomotivedepot";
-    // Directly reference a slf4j logger
+
+    public static final String MOD_NAME = "Create: Locomotive Depot";
+
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static final EdgePointType<FourSignalBoundary> FOUR_SIGNAL =
+            EdgePointType.register(asResource("four_signal"), FourSignalBoundary :: new);
+    private static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MOD_ID);
 
+    static {
+        REGISTRATE.setTooltipModifierFactory(item ->
+                new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
+                        .andThen(TooltipModifier.mapNull(KineticStats.create(item)))
+        );
+    }
 
-    // The constructor for the mod class is the first code that is run when your mod is loaded.
-    // FML will recognize some parameter types like IEventBus or ModContainer and pass them in automatically.
+    //  类的构造函数是加载 mod 时运行的第一个代码。
+    // FML 将识别 IEventBus 或 ModContaine r等参数类型，并自动传递它们。
     public CreateLocomotiveDepot(IEventBus modEventBus, ModContainer modContainer) {
-        // Register the commonSetup method for modloading
+        LOGGER.info("{} Loading...", MOD_NAME);
+
         modEventBus.addListener(this::commonSetup);
+        REGISTRATE.registerEventListeners(modEventBus);
 
+        CLDBlocks.register();
+        CLDItems.register();
+        CLDBlockEntities.register();
+        CLDCreativeModeTabs.register(modEventBus);
 
+        // 注册事件监听器
+        // 请注意，只有当我们希望 *this* 类（CreateLocomotiveDepot）直接响应事件时，这才是必要的。
+        // 如果此类中没有@SubscribeEvent注释函数，请不要添加此行，如下面的onServerStarting（）。
+//        NeoForge.EVENT_BUS.register(this);
 
-
-        // Register ourselves for server and other game events we are interested in.
-        // Note that this is necessary if and only if we want *this* class (CreateLocomotiveDepot) to respond directly to events.
-        // Do not add this line if there are no @SubscribeEvent-annotated functions in this class, like onServerStarting() below.
-        NeoForge.EVENT_BUS.register(this);
-
-        // Register the item to a creative tab
-
-
-        // Register our mod's ModConfigSpec so that FML can create and load the config file for us
+        // 注册我们的 mod 的 ModConfigSpec，以便 FML 可以为我们创建和加载配置文件
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
@@ -58,10 +76,14 @@ public class CreateLocomotiveDepot {
         Config.ITEM_STRINGS.get().forEach((item) -> LOGGER.info("ITEM >> {}", item));
     }
 
-    // You can use SubscribeEvent and let the Event Bus discover methods to call
-    @SubscribeEvent
-    public void onServerStarting(ServerStartingEvent event) {
-        // Do something when the server starts
-        LOGGER.info("HELLO from server starting");
+
+    public static CreateRegistrate registrate() {
+        return REGISTRATE;
+        //
+    }
+
+    public static ResourceLocation asResource(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+        //
     }
 }
