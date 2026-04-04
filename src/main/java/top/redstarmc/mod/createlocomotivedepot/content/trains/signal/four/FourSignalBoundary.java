@@ -2,9 +2,11 @@ package top.redstarmc.mod.createlocomotivedepot.content.trains.signal.four;
 
 import com.simibubi.create.Create;
 import com.simibubi.create.content.trains.graph.*;
+import com.simibubi.create.content.trains.signal.SignalBlockEntity;
 import com.simibubi.create.content.trains.signal.SignalEdgeGroup;
 import com.simibubi.create.content.trains.signal.TrackEdgePoint;
 import net.createmod.catnip.data.Couple;
+import net.createmod.catnip.data.Iterate;
 import net.createmod.catnip.nbt.NBTHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -40,7 +42,9 @@ public class FourSignalBoundary extends TrackEdgePoint {
 
     public void setGroup(boolean primary, UUID groupId) {
         UUID previous = groups.get(primary);
+
         groups.set(primary, groupId);
+
         UUID opposite = groups.get(! primary);
         Map<UUID, SignalEdgeGroup> signalEdgeGroups = Create.RAILWAYS.signalEdgeGroups;
 
@@ -66,37 +70,16 @@ public class FourSignalBoundary extends TrackEdgePoint {
         nextSignals.set(primary, null);
     }
 
-    public UUID getGroup(TrackNode side) {
-        return groups.get(isPrimary(side));
-        //
-    }
-
-    // ---------- 核心状态获取 ----------
-    public FourAspectState getStateFor(BlockPos blockEntityPos) {
-        // 找到这个方块实体位于哪一侧
-        for ( boolean side : new boolean[] {true, false} ) {
-            if ( blockEntities.get(side).containsKey(blockEntityPos) ) {
-                return cachedStates.get(side);
-            }
-        }
-        return FourAspectState.INVALID;
-    }
-
-    // ---------- 队列更新标记 ----------
-    public void queueUpdate(TrackNode side) {
-        sidesToUpdate.set(isPrimary(side), true);
-        //
-    }
-
-
     @Override
     public boolean canMerge() {
         return true;
+        //
     }
 
     @Override
     public boolean canCoexistWith(EdgePointType<?> otherType, boolean front) {
         return otherType == getType();
+        //
     }
 
     @Override
@@ -126,15 +109,53 @@ public class FourSignalBoundary extends TrackEdgePoint {
     }
 
     @Override
+    public boolean canNavigateVia(TrackNode side) {
+        return ! blockEntities.get(isPrimary(side)).isEmpty();
+        //
+    }
+
+    @Override
     public void onRemoved(TrackGraph graph) {
         super.onRemoved(graph);
         FourSignalPropagator.onSignalRemoved(graph, this);
     }
 
-    @Override
-    public boolean canNavigateVia(TrackNode side) {
-        return ! blockEntities.get(isPrimary(side)).isEmpty();
+    public void updateBlockEntityPower(FourSignalBlockEntity blockEntity) {
+        for ( boolean front : Iterate.trueAndFalse )
+            blockEntities.get(front)
+                    .computeIfPresent(blockEntity.getBlockPos(), (p, c) -> blockEntity.getReportedPower());
     }
+
+    public void queueUpdate(TrackNode side) {
+        sidesToUpdate.set(isPrimary(side), true);
+        //
+    }
+
+    public UUID getGroup(TrackNode side) {
+        return groups.get(isPrimary(side));
+        //
+    }
+
+    public FourAspectState getStateFor(BlockPos blockEntityPos) {
+        for ( boolean side : new boolean[] {true, false} ) {
+            if ( blockEntities.get(side).containsKey(blockEntityPos) ) {
+                return cachedStates.get(side);
+            }
+        }
+        return FourAspectState.INVALID;
+    }
+
+    public SignalBlockEntity.OverlayState getOverlayFor(BlockPos blockEntity) {
+        for ( boolean first : Iterate.trueAndFalse ) {
+            Map<BlockPos, Boolean> set = blockEntities.get(first);
+            for ( BlockPos blockPos : set.keySet() ) {
+                if ( blockPos.equals(blockEntity) )
+                    return blockEntities.get(! first).isEmpty() ? SignalBlockEntity.OverlayState.RENDER : SignalBlockEntity.OverlayState.DUAL;
+            }
+        }
+        return SignalBlockEntity.OverlayState.SKIP;
+    }
+
 
     // ---------- 序列化 ----------
     @Override
@@ -233,7 +254,7 @@ public class FourSignalBoundary extends TrackEdgePoint {
                 continue;
             }
 
-            // 占用检查（与原版相同）
+            // 占用检查
             boolean occupied = forcedRed || isGroupOccupied(groupId, this);
             if ( occupied ) {
                 cachedStates.set(side, FourAspectState.RED);

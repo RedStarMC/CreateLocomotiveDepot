@@ -1,34 +1,22 @@
 package top.redstarmc.mod.createlocomotivedepot.registry;
 
-import com.simibubi.create.AllItems;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.ItemStack;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.simibubi.create.foundation.data.CreateRegistrate;
 import top.redstarmc.mod.createlocomotivedepot.CreateLocomotiveDepot;
 
 public class CLDCreativeModeTabs {
 
-    public static final DeferredRegister<CreativeModeTab> TABS =
-            DeferredRegister.create(Registries.CREATIVE_MODE_TAB, CreateLocomotiveDepot.MOD_ID);
+    private static final CreateRegistrate REGISTRATE = CreateLocomotiveDepot.registrate();
 
-    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> MAIN_TAB =
-            TABS.register("main", () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup." + CreateLocomotiveDepot.MOD_ID + ".main"))
-                    .withTabsBefore(CreativeModeTabs.SPAWN_EGGS) // 放在原版蛋Tab后面
-                    .icon(() -> new ItemStack(AllItems.WRENCH.asItem()))
-                    .displayItems((parameters, output) -> {
-                        // 手动添加
-                    })
-                    .build()
-            );
+//    public static final RegistryEntry<CreativeModeTab, CreativeModeTab> MAIN_TAB = REGISTRATE.
+//            defaultCreativeTab("main", builder -> builder
+//                    .title(Component.translatable("itemGroup." + CreateLocomotiveDepot.MOD_ID + ".main"))
+//                    .icon(() -> new ItemStack(AllItems.WRENCH.asItem()))
+//                    .displayItems((parameters, output) -> {
+//                        output.accept(CLDBlocks.FOUR_SIGNAL.asItem());
+//                    })
+//    ).register();
 
-    public static void register(IEventBus bus) {
-        TABS.register(bus);
+    public static void register() {
     }
 
 }

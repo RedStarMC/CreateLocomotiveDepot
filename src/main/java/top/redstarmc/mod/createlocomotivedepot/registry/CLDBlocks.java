@@ -1,5 +1,6 @@
 package top.redstarmc.mod.createlocomotivedepot.registry;
 
+import com.simibubi.create.content.trains.track.TrackTargetingBlockItem;
 import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.entry.BlockEntry;
@@ -43,8 +44,16 @@ public class CLDBlocks {
             .properties(p -> p.mapColor(MapColor.PODZOL)
                     .noOcclusion()
                     .sound(SoundType.NETHER_BRICKS))
+            .blockstate((ctx, prov) -> prov.simpleBlock(ctx.getEntry(),
+                    prov.models().getExistingFile(prov.modLoc("block/four_signal_block"))
+            ))
             .transform(pickaxeOnly())
             .loot(RegistrateBlockLootTables :: dropSelf)
+            .lang("Four Signal Block")
+            .item((block, properties) -> new TrackTargetingBlockItem(block, properties, CreateLocomotiveDepot.FOUR_SIGNAL))
+//            .tab(CreativeModeTabs.BUILDING_BLOCKS)
+            .model((ctx, prov) -> prov.withExistingParent(ctx.getName(), prov.modLoc("block/four_signal_block")))
+            .build()
             .register();
 
     public static void register() {

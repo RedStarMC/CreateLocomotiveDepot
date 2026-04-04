@@ -28,4 +28,5 @@ public class CreateLocomotiveDepotClient {
         CreateLocomotiveDepot.LOGGER.info("HELLO FROM CLIENT SETUP");
         CreateLocomotiveDepot.LOGGER.info("MINECRAFT NAME >> {}", Minecraft.getInstance().getUser().getName());
     }
+
 }

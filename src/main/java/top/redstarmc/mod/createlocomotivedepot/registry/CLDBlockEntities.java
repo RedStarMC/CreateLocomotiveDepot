@@ -19,6 +19,7 @@ public class CLDBlockEntities {
     public static final BlockEntityEntry<FourSignalBlockEntity> FOUR_SIGNAL = REGISTRATE
             .blockEntity("four_signal", FourSignalBlockEntity :: new)
             .visual(() -> FourSignalVisual :: new)
+            .validBlocks(CLDBlocks.FOUR_SIGNAL)
             .register();
 
     public static void register() {

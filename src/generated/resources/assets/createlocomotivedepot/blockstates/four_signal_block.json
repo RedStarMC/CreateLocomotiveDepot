@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "createlocomotivedepot:block/four_signal_block"
+    }
+  }
+}

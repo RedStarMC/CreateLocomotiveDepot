@@ -30,9 +30,10 @@ public class CreateLocomotiveDepot {
     public static final String MOD_NAME = "Create: Locomotive Depot";
 
     public static final Logger LOGGER = LogUtils.getLogger();
-    public static final EdgePointType<FourSignalBoundary> FOUR_SIGNAL =
-            EdgePointType.register(asResource("four_signal"), FourSignalBoundary :: new);
+
     private static final CreateRegistrate REGISTRATE = CreateRegistrate.create(MOD_ID);
+
+    public static EdgePointType<FourSignalBoundary> FOUR_SIGNAL;
 
     static {
         REGISTRATE.setTooltipModifierFactory(item ->
@@ -46,13 +47,16 @@ public class CreateLocomotiveDepot {
     public CreateLocomotiveDepot(IEventBus modEventBus, ModContainer modContainer) {
         LOGGER.info("{} Loading...", MOD_NAME);
 
+        FOUR_SIGNAL = EdgePointType.register(asResource("four_signal"), FourSignalBoundary :: new);
+        CreateLocomotiveDepot.LOGGER.info("Registered FOUR_SIGNAL with id: {}", FOUR_SIGNAL.getId());
+
         modEventBus.addListener(this::commonSetup);
         REGISTRATE.registerEventListeners(modEventBus);
 
         CLDBlocks.register();
         CLDItems.register();
         CLDBlockEntities.register();
-        CLDCreativeModeTabs.register(modEventBus);
+        CLDCreativeModeTabs.register();
 
         // 注册事件监听器
         // 请注意，只有当我们希望 *this* 类（CreateLocomotiveDepot）直接响应事件时，这才是必要的。
