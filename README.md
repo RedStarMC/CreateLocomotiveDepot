@@ -23,3 +23,12 @@ Additional Resources:
 ==========
 Community Documentation: https://docs.neoforged.net/  
 NeoForged Discord: https://discord.neoforged.net/
+
+## 计划
+
+1. 信号机
+2. 驾驶 HUD
+3. 新驾驶机制
+4. 车站控制系统（一个由多个列车站方块组成的车站系统）
+5. 兼容 JEI/EMI/小地图
+6. 车载摄像头
