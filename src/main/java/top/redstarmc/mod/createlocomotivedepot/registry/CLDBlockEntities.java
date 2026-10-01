@@ -4,6 +4,7 @@ import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.tterrag.registrate.util.entry.BlockEntityEntry;
 import top.redstarmc.mod.createlocomotivedepot.CreateLocomotiveDepot;
 import top.redstarmc.mod.createlocomotivedepot.content.trains.signal.four.FourSignalBlockEntity;
+import top.redstarmc.mod.createlocomotivedepot.content.trains.signal.four.FourSignalRenderer;
 import top.redstarmc.mod.createlocomotivedepot.content.trains.signal.four.FourSignalVisual;
 
 public class CLDBlockEntities {
@@ -13,6 +14,7 @@ public class CLDBlockEntities {
     public static final BlockEntityEntry<FourSignalBlockEntity> FOUR_SIGNAL = REGISTRATE
             .blockEntity("four_signal", FourSignalBlockEntity :: new)
             .visual(() -> FourSignalVisual :: new)
+            .renderer(() -> FourSignalRenderer :: new)
             .validBlocks(CLDBlocks.FOUR_SIGNAL)
             .register();
 

@@ -1,0 +1,151 @@
+﻿{
+  "credit": "Create: Locomotive Depot",
+  "parent": "block/block",
+  "ambientocclusion": false,
+  "textures": {
+    "0": "createlocomotivedepot:block/four_signal_glow_off",
+    "particle": "createlocomotivedepot:block/four_signal_glow_off"
+  },
+  "elements": [
+    {
+      "name": "lamp_x",
+      "from": [
+        -0.5,
+        2,
+        7
+      ],
+      "to": [
+        16.5,
+        4,
+        9
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            10,
+            7,
+            16,
+            16
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            10,
+            7,
+            16,
+            16
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            10,
+            7,
+            16,
+            16
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            10,
+            7,
+            16,
+            16
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            10,
+            0,
+            16,
+            6
+          ],
+          "rotation": 90,
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            10,
+            0,
+            16,
+            6
+          ],
+          "rotation": 90,
+          "texture": "#0"
+        }
+      }
+    },
+    {
+      "name": "lamp_z",
+      "from": [
+        7,
+        2,
+        -0.5
+      ],
+      "to": [
+        9,
+        4,
+        16.5
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            10,
+            7,
+            16,
+            16
+          ],
+          "texture": "#0"
+        },
+        "east": {
+          "uv": [
+            10,
+            7,
+            16,
+            16
+          ],
+          "texture": "#0"
+        },
+        "south": {
+          "uv": [
+            10,
+            7,
+            16,
+            16
+          ],
+          "texture": "#0"
+        },
+        "west": {
+          "uv": [
+            10,
+            7,
+            16,
+            16
+          ],
+          "texture": "#0"
+        },
+        "up": {
+          "uv": [
+            10,
+            0,
+            16,
+            6
+          ],
+          "texture": "#0"
+        },
+        "down": {
+          "uv": [
+            10,
+            0,
+            16,
+            6
+          ],
+          "texture": "#0"
+        }
+      }
+    }
+  ]
+}

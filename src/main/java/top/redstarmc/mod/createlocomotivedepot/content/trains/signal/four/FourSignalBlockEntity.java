@@ -1,6 +1,5 @@
 package top.redstarmc.mod.createlocomotivedepot.content.trains.signal.four;
 
-import com.simibubi.create.content.trains.signal.SignalBlock;
 import com.simibubi.create.content.trains.signal.SignalBlockEntity;
 import com.simibubi.create.content.trains.track.TrackTargetingBehaviour;
 import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
@@ -16,20 +15,28 @@ import top.redstarmc.mod.createlocomotivedepot.CreateLocomotiveDepot;
 
 import java.util.List;
 
+/**
+ * 四显示信号机的方块实体。
+ *
+ * <p>负责把 {@link FourSignalBoundary} 算出的四显示档位同步到客户端，
+ * 并提供轨道覆盖层状态。所有真正的闭塞逻辑都在边界对象里。</p>
+ */
 public class FourSignalBlockEntity extends SmartBlockEntity {
 
     public TrackTargetingBehaviour<FourSignalBoundary> edgePoint;
 
     private SignalBlockEntity.OverlayState overlay;
-    private FourAspectState state;
+    private FourAspectState aspect;
     private boolean lastReportedPower;
+
+    /** 刚变绿/黄/绿黄后的抑制计数，避免列车压过时灯色抖动（与原版同机制）。 */
     private int switchToRedAfterTrainEntered;
 
     public FourSignalBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         this.overlay = SignalBlockEntity.OverlayState.SKIP;
+        this.aspect = FourAspectState.INVALID;
         this.lastReportedPower = false;
-        this.state = FourAspectState.INVALID;
     }
 
     @Override
@@ -41,39 +48,34 @@ public class FourSignalBlockEntity extends SmartBlockEntity {
     @Override
     public void tick() {
         super.tick();
-        if ( level != null && level.isClientSide ) return;
+        if ( level == null || level.isClientSide )
+            return;
 
         FourSignalBoundary boundary = getSignal();
         if ( boundary == null ) {
-            enterState(FourAspectState.INVALID);
+            enterAspect(FourAspectState.INVALID);
             setOverlay(SignalBlockEntity.OverlayState.RENDER);
             return;
         }
 
+        // 红石供电变化 -> 通知边界重算（红石强制红）
+        getBlockState().getOptionalValue(FourSignalBlock.POWERED)
+                .ifPresent(powered -> {
+                    if ( lastReportedPower == powered )
+                        return;
+                    lastReportedPower = powered;
+                    boundary.updateBlockEntityPower(this);
+                    notifyUpdate();
+                });
 
-//        // 根据当前方块位置确定属于哪一侧
-//        boolean primary = boundary.isPrimaryForPos(worldPosition);
-//        if ( ! primary && ! boundary.blockEntities.getSecond().containsKey(worldPosition) ) {
-//            // 尚未注册，跳过 TODO
-//            return;
-//        }
-
-        getBlockState().getOptionalValue(SignalBlock.POWERED).ifPresent(powered -> {
-            if ( lastReportedPower == powered )
-                return;
-            lastReportedPower = powered;
-            boundary.updateBlockEntityPower(this);
-            notifyUpdate();
-        });
-
-        enterState(boundary.getStateFor(worldPosition));
+        enterAspect(boundary.getAspectFor(worldPosition));
         setOverlay(boundary.getOverlayFor(worldPosition));
     }
 
     @Override
     protected void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.write(tag, registries, clientPacket);
-        NBTHelper.writeEnum(tag, "State", state);
+        NBTHelper.writeEnum(tag, "Aspect", aspect);
         NBTHelper.writeEnum(tag, "Overlay", overlay);
         tag.putBoolean("Power", lastReportedPower);
     }
@@ -81,7 +83,7 @@ public class FourSignalBlockEntity extends SmartBlockEntity {
     @Override
     protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
         super.read(tag, registries, clientPacket);
-        state = NBTHelper.readEnum(tag, "State", FourAspectState.class);
+        aspect = NBTHelper.readEnum(tag, "Aspect", FourAspectState.class);
         overlay = NBTHelper.readEnum(tag, "Overlay", SignalBlockEntity.OverlayState.class);
         lastReportedPower = tag.getBoolean("Power");
         invalidateRenderBoundingBox();
@@ -89,28 +91,15 @@ public class FourSignalBlockEntity extends SmartBlockEntity {
 
     public boolean getReportedPower() {
         return lastReportedPower;
-        //
-    }
-
-    public void enterState(FourAspectState state) {
-        if ( switchToRedAfterTrainEntered > 0 )
-            switchToRedAfterTrainEntered--;
-        if ( this.state == state )
-            return;
-        if ( state == FourAspectState.RED && switchToRedAfterTrainEntered > 0 )
-            return;
-        this.state = state;
-        switchToRedAfterTrainEntered = state == FourAspectState.GREEN || state == FourAspectState.YELLOW || state == FourAspectState.GREEN_YELLOW ? 15 : 0;
-        notifyUpdate();
     }
 
     @Nullable
     public FourSignalBoundary getSignal() {
-        return edgePoint.getEdgePoint();
+        return edgePoint == null ? null : edgePoint.getEdgePoint();
     }
 
-    public FourAspectState getState() {
-        return state;
+    public FourAspectState getAspect() {
+        return aspect;
     }
 
     public SignalBlockEntity.OverlayState getOverlay() {
@@ -121,6 +110,28 @@ public class FourSignalBlockEntity extends SmartBlockEntity {
         if ( this.overlay == state )
             return;
         this.overlay = state;
+        notifyUpdate();
+    }
+
+    /**
+     * 切换四显示档位。
+     *
+     * <p>抑制规则与原版 {@code SignalBlockEntity.enterState} 相同：进入通行档位
+     * （绿 / 绿黄 / 黄）后 15 tick 内不接受转红，避免列车正好压过信号机时的闪烁。</p>
+     */
+    public void enterAspect(FourAspectState aspect) {
+        if ( switchToRedAfterTrainEntered > 0 )
+            switchToRedAfterTrainEntered--;
+
+        if ( this.aspect == aspect )
+            return;
+        if ( aspect == FourAspectState.RED && switchToRedAfterTrainEntered > 0 )
+            return;
+
+        this.aspect = aspect;
+        switchToRedAfterTrainEntered =
+                aspect == FourAspectState.GREEN || aspect == FourAspectState.YELLOW || aspect == FourAspectState.GREEN_YELLOW
+                        ? 15 : 0;
         notifyUpdate();
     }
 

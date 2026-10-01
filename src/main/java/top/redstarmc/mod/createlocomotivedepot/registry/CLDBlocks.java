@@ -6,6 +6,7 @@ import com.tterrag.registrate.providers.loot.RegistrateBlockLootTables;
 import com.tterrag.registrate.util.entry.BlockEntry;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.material.MapColor;
+import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
 import top.redstarmc.mod.createlocomotivedepot.CreateLocomotiveDepot;
 import top.redstarmc.mod.createlocomotivedepot.content.trains.signal.four.FourSignalBlock;
 
@@ -21,9 +22,11 @@ public class CLDBlocks {
             .properties(p -> p.mapColor(MapColor.PODZOL)
                     .noOcclusion()
                     .sound(SoundType.NETHER_BRICKS))
-            .blockstate((ctx, prov) -> prov.simpleBlock(ctx.getEntry(),
-                    prov.models().getExistingFile(prov.modLoc("block/four_signal_block"))
-            ))
+            .blockstate((ctx, prov) -> prov.getVariantBuilder(ctx.getEntry())
+                    .forAllStates(state -> ConfiguredModel.builder()
+                            .modelFile(prov.models()
+                                    .getExistingFile(prov.modLoc("block/four_signal_block")))
+                            .build()))
             .transform(pickaxeOnly())
             .loot(RegistrateBlockLootTables :: dropSelf)
             .lang("Four Signal Block")

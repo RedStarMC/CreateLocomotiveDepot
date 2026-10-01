@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import top.redstarmc.mod.createlocomotivedepot.content.trains.signal.four.FourSignalBoundary;
 import top.redstarmc.mod.createlocomotivedepot.registry.CLDBlockEntities;
 import top.redstarmc.mod.createlocomotivedepot.registry.CLDBlocks;
-import top.redstarmc.mod.createlocomotivedepot.registry.CLDCreativeModeTabs;
 import top.redstarmc.mod.createlocomotivedepot.registry.CLDItems;
 
 @Mod(CreateLocomotiveDepot.MOD_ID)
@@ -56,7 +55,7 @@ public class CreateLocomotiveDepot {
         CLDBlocks.register();
         CLDItems.register();
         CLDBlockEntities.register();
-        CLDCreativeModeTabs.register();
+//        CLDCreativeModeTabs.register(modEventBus);  TODO  打开背包会崩溃
 
         // 注册事件监听器
         // 请注意，只有当我们希望 *this* 类（CreateLocomotiveDepot）直接响应事件时，这才是必要的。

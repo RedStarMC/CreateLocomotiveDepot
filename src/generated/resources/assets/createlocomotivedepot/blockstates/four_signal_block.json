@@ -1,6 +1,15 @@
 {
   "variants": {
-    "": {
+    "powered=false,waterlogged=false": {
+      "model": "createlocomotivedepot:block/four_signal_block"
+    },
+    "powered=false,waterlogged=true": {
+      "model": "createlocomotivedepot:block/four_signal_block"
+    },
+    "powered=true,waterlogged=false": {
+      "model": "createlocomotivedepot:block/four_signal_block"
+    },
+    "powered=true,waterlogged=true": {
       "model": "createlocomotivedepot:block/four_signal_block"
     }
   }

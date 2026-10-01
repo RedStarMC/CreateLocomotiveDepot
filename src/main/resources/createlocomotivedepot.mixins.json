@@ -3,6 +3,10 @@
   "package": "top.redstarmc.mod.createlocomotivedepot.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "CurvedTrackSelectionPacketMixin",
+    "EdgeDataMixin",
+    "TrackGraphAccessor",
+    "TrackGraphMixin"
   ],
   "injectors": {
     "defaultRequire": 1
